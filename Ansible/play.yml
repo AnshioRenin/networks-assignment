@@ -1,0 +1,71 @@
+- name: Configure max server
+  hosts: max
+  become: yes
+
+  tasks:
+    - name: Update all packages
+      yum:
+        name: '*'
+        state: latest
+        update_cache: yes
+    
+    - name: Install pip
+      yum:
+        name: python3-pip
+        state: present
+
+    - name: Install Docker
+      yum:
+        name: docker
+        state: present
+
+    - name: Install Docker Compose via pip (alternative)
+      pip:
+        name: docker-compose
+        state: present
+
+    - name: Start Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add ec2-user to docker group
+      user:
+        name: ec2-user
+        groups: docker
+        append: yes
+
+    # - name: Install Docker SDK for Python
+    #   pip:
+    #     name: docker
+    #     state: present
+      
+    - name: Enable Docker to start on boot
+      systemd:
+        name: docker
+        enabled: yes
+
+    
+
+    # - name: Copy application files
+    #   copy:
+    #     src: ../docker/
+    #     dest: /home/ec2-user/app/
+
+    # - name: Build Docker image
+    #   docker_image:
+    #     name: sample-app
+    #     build:
+    #       path: /home/ec2-user/app/
+    #     source: build
+    #     state: present
+
+    # - name: Run Docker container
+    #   docker_container:
+    #     name: sample-app
+    #     image: sample-app
+    #     state: started
+    #     restart_policy: always
+    #     ports:
+    #       - "80:80"
